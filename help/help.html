@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GVDA QGIS Plugin - Step-by-Step Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            color: #222;
+        }
+        header {
+            background: #004466;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        main {
+            max-width: 1000px;
+            margin: 20px auto 40px auto;
+            background: #fff;
+            padding: 20px 25px 40px 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        h2 {
+            color: #004466;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #006688;
+            margin-top: 25px;
+        }
+        p {
+            margin: 8px 0;
+        }
+        ol, ul {
+            margin: 8px 0 16px 20px;
+        }
+        .step {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #ddd;
+        }
+        .step:last-of-type {
+            border-bottom: none;
+        }
+        .screenshot {
+            margin: 10px 0 15px 0;
+            text-align: center;
+        }
+        .screenshot img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .screenshot small {
+            display: block;
+            margin-top: 5px;
+            color: #555;
+        }
+        .note {
+            background: #e8f4ff;
+            border-left: 4px solid #2a7dd1;
+            padding: 10px 12px;
+            margin: 12px 0;
+            font-size: 0.95em;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 0.95em;
+        }
+        footer {
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        table {border: 2px solid blue; border-collapse: collapse; font-family: arial; width: 80%;}
+        
+        td {padding: 5px;text-align: center;}
+        
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>GVDA Plugin User Guide</h1>
+    <p>Technical Documentation | Version 1.3</p>
+</header>
+
+<main>
+
+    <!-- 1. Introduction -->
+    <section id="intro">
+        <h2>1. Introduction</h2>
+        <p>The GNSS Vector Direction Analysis (GVDA) plugin is an open-source QGIS extension for visualising and analysing position time series from GNSS continuously operating reference stations (CORS).</p>
+        <p>This plugin presents a computational approach for analysing GNSS horizontal displacement directions using circular statistics, horizontal displacement is represented as a vector defined by its magnitude and azimuth. The GVDA plugin was developed in Python and integrated into QGIS as an open-access tool for loading, visualising, and analysing time series from multiple data services. It supports the PBO and NEU formats and converts displacement data to polar coordinates to compute circular metrics. Circular statistics provide a complementary statistical framework for the analysis of GNSS CORS station time series by enabling the interpretation of horizontal displacements as vectorial processes. GVDA supports single-station analysis and allows users to select multiple GNSS stations from an online data service to compare their displacement trends.<p>
+        <p>A key feature of GVDA is the integration of absolute and relative displacement analyses within a common directional statistical framework. The absolute displacement method highlights persistent displacement orientations and long-term directional trends, making it particularly suitable for assessing the directional consistency of accumulated horizontal displacements. In contrast, the relative displacement method captures short-term directional variability between consecutive epochs, allowing for the identification of oscillatory behaviour, transient displacements, and potential anomalies, outliers, and offsets.</p>
+        <p>This guide describes the complete workflow, from loading time-series data to generating charts and exporting final outputs.</p>
+    </section>
+
+    <!-- 2. Main interface -->
+    <section id="interface">
+        <h2>2. Main GVDA interface</h2>
+
+        <div class="step">
+            <h3>Panel Overview</h3>
+            <p>The main GVDA panel is divided into several sections:</p> 
+            <ul>
+                <li><b>Start</b>: Load GNSS time series from local files or retrieve station data from supported online services and configure input parameters.</li>
+                <li><b>Validation</b>: Verify the input data and select the fields required for analysis.</li>
+                <li><b>Results</b>: Display the results of the directional statistical analysis and the corresponding charts.</li>
+                <li><b>Data</b>: View the processed data in tabular format.</li>
+                <li><b>Settings</b>: Configure graphical outputs and report options.</li>
+            </ul>
+            <div class="screenshot">
+                <img src="img/figure_a.png" alt="GVDA main panel">
+                <small>Figure 1. General layout of the GVDA plugin interface.</small>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>Start panel</h3>
+            <h3>Loading Local Time Series and Input Parameters</h3>
+            <p>Select a local time-series file in PBO, NEU or TXT format using the file browser.</p>
+            <p>Next, identify the row where the data section begins, after any descriptive metadata or header information (for example, “End Field Description” or a separator line). If the time series contains column headings, select the “Data with headers” checkbox.</p>
+            <p>Select “Verify” to preview the imported data. Adjust the import settings as necessary until the data are displayed correctly.</p>
+            <p>The plugin can display a basemap from providers such as OpenStreetMap, Google Maps, Bing Satellite, ESRI, etc.</p>
+            <p>Indicate whether the input file contains station coordinates:</p>
+            <ul>
+                <li> Select <b>YES</b> if the input file contains latitude and longitude coordinates, then select the corresponding fields.</li>
+                <li> Select <b>NO</b> if the coordinates are not included. The station can then be selected from a preloaded station list (CDDIS solution for GPS week 2237, day 6).</li>
+            </ul>
+            <div class="screenshot">
+                <img src="img/figure_b.png" alt="load time series in GVDA">
+                <small>Figure 2. Loading a local time series and configuring input parameters.</small>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>Control Buttons</h3>
+            <ul>
+                <li><strong>...</strong>: Browse for a time-series file to load.</li>
+                <li><strong>Verify</strong>: Check the imported file structure and the separation of metadata and data.</li>
+                <li><strong>Yes / No</strong>: IIndicate whether station coordinates are included in the file.</li>
+                <li><strong>Upload data</strong>: Display the records in the QGIS interface.</li>
+                <li><strong>Next</strong>: Proceed to the next stage.</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>Searching for Time Series</h3>
+            <p>The time-series search panel contains:</p> 
+            <ul>
+                <li>A selector for the available GNSS data services (NGL, JPL and EPOS) and the Compressed file option.</li>
+                <li>A description of the selected service.</li>
+                <li>A list of available CORS stations from the selected data service.</li>
+                <li>A list of selected stations.</li>
+                <li>Clear Selection and Next buttons.</li>
+            </ul>
+            <div class="screenshot">
+                <img src="img/figura_7.png" alt=" time series in GVDA">
+                <small>Figure 3. ime-series search panel in GVDA.</small>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>Input Parameters</h3>
+            <p>Select one or more stations from the service catalogue. Multiple stations can be selected for subsequent batch analysis.</p>
+            <p>Stations can be removed individually, or the entire selection can be cleared.</p>
+
+            <div class="screenshot">
+                <img src="img/figure_m.png" alt=" time series in GVDA">
+                <small>Figure 4. Selection of multiple GNSS stations for analysis.</small>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>Controls</h3>
+            <ul>
+                <li> <strong>Clear stations</strong>: Remove all selected stations.</li>
+                <li> <strong>Next</strong>: Continue to the validation stage.</li>
+            </ul>
+        </div>
+
+    </section>
+
+
+    <!-- 3. Validation -->
+    <section id="validation">
+        <h2>3. Validation</h2>
+
+        <div class="step">
+            <p>Regardless of whether the data are loaded as an individual GNSS time series or as a set of stations retrieved from an online data service, the next step is the <b>Validation</b> panel.</p>
+            <h3>Selecting the time field (epoch)</h3>
+            <p>Select the field containing the epoch information, such as a calendar date (**YYYYMMDD**), a Modified Julian Date field (**JJJJJ.JJJJJ**) or a decimal year (**YYYY.YYYYYY**). Select the appropriate format when prompted (Figure 5).</p>
+            <div class="screenshot">
+                <img src="img/figure_c.png" alt="Epoch format">
+                <small>Figure 5. Epoch-format selection.</small>
+            </div>
+            <p>The dates are converted internally into a standardised Modified Julian Date representation for subsequent processing.</p>
+        </div>
+
+        <div class="step">
+            <h3>Selecting the North component difference</h3>
+            <p>Select the field containing the North displacement component in the NEU reference system.</p>
+            <h3>Selecting the East component difference</h3>
+            <p>Select the field containing the East displacement component in the NEU reference system.</p>
+            <br>
+            <p>VDA displays the original North and East components and their values expressed relative to the initial epoch, together with graphical representations of both components over time.</p>
+            <div class="screenshot">
+                <img src="img/figure_d.png" alt="Validation menu">
+                <small>Figure 6. Validation screen showing the selected fields and displacement components.</small>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>Control Buttons</h3>
+            <ul>
+                <li><strong>Analyse Station</strong>: Process the selected station.</li>
+                <li><strong>Batch Analysis</strong>: Analyse the selected stations together. This option is only available when station data are retrieved through the Search Time Series panel.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 4. Results -->
+    <section id="results">
+        <h2>4. Results</h2>
+        <p>Once displacement vectors are obtained, circular statistical descriptors are computed to evaluate the directional characteristics of the GNSS time series.</p>
+
+        <div class="step">
+            <h3>Results from Loading Time Series</h3>
+            <p>Two methods are available to analyse horizontal displacements derived from GNSS position time series.:</p>
+            <ul>
+                <li><strong>Absolute Method</strong>:</li>
+            </ul>
+            <p>Each position is compared with the position at the initial epoch or a selected reference epoch. This method highlights long-term directional trends and persistent patterns of horizontal displacement. Definitions of the statistical parameters presented below are provided in a report that can be generated from the Settings panel.</p>
+        </div>
+
+        <div class="step">
+            <h3>Statistical Results for the Absolute Method</h3>
+            <h3>CIRCULAR STATISTICS (AZIMUTHS)</h3>
+            <ul>
+                <li><b>Central tendency:</b> 
+                    <ul>
+                        <li>Mean azimuth.</li>
+                        <li>Mode azimuth.</li>
+                        <li>Median azimuth.</li>
+                    </ul>
+                </li>
+                <li><b>Dispersion:</b>
+                <ul> 
+                    <li>Discrepancy.</li>
+                    <li>Length of mean vector.</li>
+                    <li>Circular variance.</li>
+                    <li>Circular standard deviation.</li>
+                    <li>Angular variance.</li>
+                    <li>Mean angular deviation.</li>
+                    <li>Angular standard deviation.</li>
+                    <li>Circular dispersion.</li>
+                    <li>Von Mises concentration parameter.</li>
+                </ul>
+                </li>
+                <li><b>Shape:</b>
+                <ul>
+                    <li>Kurtosis coefficient.</li>
+                    <li>Skewness coefficient.</li>
+                </ul>
+                </li>
+                <li><b>Epoch Interval:</b>
+                <ul>
+                    <li><b>Initial epoch</b>: Date of the first record.</li>
+                    <li><b>Final epoch</b>: Date of the last record.</li>
+                    <li><b>Epoch interval:</b> Time interval between consecutive observations.</li>
+                    <li><b>Number of interruptions</b>: Number of gaps or discontinuities identified in the time series.</li>
+                </ul>
+                </li>
+            </ul>
+            <div class="screenshot">
+                <img src="img/figure_e.png" alt="Results absolute method">
+                <small>Figure 7. Absolute-method results.</small>
+            </div>  
+        </div>
+
+        <div class="step">
+            <ul>
+                <li><strong>Relative method</strong>:</li>
+            </ul>
+            <p>Each position is compared with the position at the immediately preceding epoch. This strategy emphasises short-term directional variability and facilitates the detection of anomalies, outliers and offsets. When consecutive observations are separated by more than one day, the displacement magnitude is normalised by the elapsed time to obtain a daily displacement rate for anomaly detection.</p>
+            <p>The same circular statistical parameters used in the absolute method are calculated here, but they describe the directions of horizontal displacements between consecutive epochs.</p>
+            <ul>
+                <li><b>Central tendency:</b> 
+                    <ul>
+                        <li>Mean azimuth.</li>
+                        <li>Mode azimuth.</li>
+                        <li>Median azimuth.</li>
+                    </ul>
+                </li>
+                <li><b>Dispersion:</b>
+                <ul> 
+                    <li>Discrepancy.</li>
+                    <li>Length of mean vector.</li>
+                    <li>Circular variance.</li>
+                    <li>Circular standard deviation.</li>
+                    <li>Angular variance.</li>
+                    <li>Mean angular deviation.</li>
+                    <li>Angular standard deviation.</li>
+                    <li>Circular dispersion.</li>
+                    <li>Von Mises concentration parameter.</li>
+                </ul>
+                </li>
+                <li><b>Shape:</b>
+                <ul>
+                    <li>Kurtosis coefficient.</li>
+                    <li>Skewness coefficient.</li>
+                </ul>
+                </li>
+                <li><b>Anomalies:</b>
+                <ul>
+                    <li>Detection of anomalies, outliers, and offsets.</li>
+                    <li>Analysis based on the methodology defined by the NATO Standardisation Agreement (STANAG).</li>
+                </ul>
+                </li>
+            </ul>
+
+            <h4>Outputs include:</h4>
+            <p>Confidence multiplier (M). This value is calculated according to the STANAG methodology for samples with fewer than 167 observations. For larger samples, M = 3.5.</p>
+            <p>Horizontal Standard Deviation. A measure of the variability of horizontal displacement residuals, considering both the East (E) and North (N) components.</p>
+            <p>Threshold criteria. A residual is flagged as a potential anomaly when its absolute value exceeds the threshold defined by the horizontal standard deviation multiplied by the confidence multiplier (M).</p>
+            <p>Total anomalies. The number of horizontal displacement variations that exceed the specified detection threshold.</p>
+
+            <div class="screenshot">
+                <img src="img/figure_i.png" alt="Results relative method">
+                <small>Figure 8. Relative method results for the Reykjavik station.</small>
+            </div> 
+
+            <h4>List.</h4>
+            <p>The anomaly list displays observations flagged during the directional analysis. These observations are identified for review and are not automatically removed or corrected (Figure 9). It is possible to generate an analysis report in HTML format.</p>
+            <div class="screenshot">
+                <img src="img/figure_g.png" alt="List ASV">
+                <small>Figure 9. Anomalies list for the Reykjavik station.</small>
+            </div>
+
+            <h4>Visualisation of anomalies</h4>
+            <p>The anomalies visualisation is performed as shown in the QGIS canvas</p>
+            <ul>
+                <li><b>Blue arrows</b> Displacement vectors that satisfy the specified threshold criterion.</li>
+                <li><b>Red arrows</b> Displacement vectors flagged as anomalies.</p>
+            <div class="screenshot">
+                <img src="img/figure_h_c.png" alt="Upload ASV">
+                <small>Figure 10. Anomalies visualisation.</small>
+            </div>
+
+            <h3>Graphical Results</h3>
+            <p>The following graphical results are available for both the absolute and relative methods. The figures show the results for the absolute method.<p>
+
+            <h4>Circular Graphics</h4>
+
+            <h5>Unit Circle Plots</h5>
+            <p>The unit circle plot represents the distribution of displacement azimuths on a unit circle (Figure 11). The epoch-based version incorporates temporal information, allowing users to examine changes in displacement direction over time.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_15.png">
+                <small>Figure 11. Unit circle plot.</small>
+            </div>            
+
+            <div class="screenshot">
+                <img src="img/figura_16.png">
+                <small>Figure 12. Unit circle plot by epoch.</small>
+            </div>  
+
+            <h5>Azimuth with Radial Epoch Encoding</h5>
+            <p>This plot represents displacement azimuths using angular coordinates, while the radial position encodes the observation epoch. It facilitates the examination of directional changes throughout the time series.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_17.png">
+                <small>Figure 13. Azimuth with radial epoch encoding.</small>
+            </div> 
+
+            <h5>Azimuth–Distance Polar Plots</h5>
+            <p>The azimuth–distance polar plot represents horizontal displacement vectors using azimuth as the angular coordinate and displacement magnitude as the radial coordinate.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_18.png">
+                <small>Figure 14. Azimuth–Distance Polar Plot.</small>
+            </div> 
+
+            <p>The epoch-based version additionally incorporates temporal information, allowing users to examine the evolution of displacement magnitude and direction throughout the observation period</p>
+
+            <div class="screenshot">
+                <img src="img/figura_19.png">
+                <small>Figure 15. Azimuth–Distance Polar Plot by Epoch.</small>
+            </div>             
+
+            <h5>Annual Azimuth–Distance Polar Plot</h5>
+            <p>This plot summarises the annual net horizontal displacement vectors, showing their azimuths and magnitudes. The thickness of each representation indicates the magnitude of the annual net horizontal displacement.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_20.png">
+                <small>Figure 16. Annual Azimuth–Distance Polar Plot.</small>
+            </div> 
+
+
+            <h5>Circular KDE Plot by Epoch</h5>
+            <p>This plot represents the estimated circular density of displacement azimuths, incorporating temporal information (Figure 17). It facilitates the identification of predominant displacement directions and changes in directional concentration over time.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_21.png">
+                <small>Figure 17. Circular KDE Plot by Epoch.</small>
+            </div> 
+
+
+            <h5>Skewness and Kurtosis Plot</h5>
+            <p>This plot displays circular skewness and kurtosis statistics for the displacement azimuths (Figure 18), providing complementary information about the shape of their directional distribution.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_22.png">
+                <small>Figure 18. Skewness and kurtosis plot.</small>
+            </div> 
+
+
+            <h5>Uniform Q–Q Plot (Azimuth)</h5>
+            <p>This plot compares the observed azimuth distribution with a theoretical uniform circular distribution (Figure 19). Deviations from the reference pattern may indicate departures from directional uniformity.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_23.png">
+                <small>Figure 19. Uniform Q–Q Plot (Azimuth).</small>
+            </div> 
+
+            <h4>Linear Graphics</h4>
+            <h5>Module histogram</h5>
+            <p>This histogram shows the frequency distribution of horizontal displacement magnitudes (Figure 20), allowing users to examine their variability and identify unusually large displacement values.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_24.png">
+                <small>Figure 20. Module Histogram.</small>
+            </div> 
+
+            <h5>Temporal Evolution of Azimuth and Distance</h5>
+            <p>This plot shows the evolution of displacement azimuth and magnitude over time (Figure 21), allowing users to examine temporal variations in both directional and linear displacement characteristics.</p>
+
+            <div class="screenshot">
+                <img src="img/figura_25.png">
+                <small>Figure 21. Temporal Evolution of Azimuth and Distance.</small>
+            </div> 
+
+            <h3>Export options</h3>
+            <ul>
+                <li><b>Clipboard</b> Copy the graph to the clipboard.</li>
+                <li><b>Save as SVG</b> Export the graph in Scalable Vector Graphics (SVG) format.</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>Results from Searching for Time Series</h2>
+            <h3>Single-Station Analysis</h3>
+            <p>The results obtained from analysing a single station retrieved from an online data service include the same statistical parameters and graphical outputs as those generated when loading a local time-series file.</p>
+
+            <h3>Batch Analysis</h3>
+            <p>Batch Analysis allows multiple GNSS stations selected from an online data service to be analysed together. The results are presented in a comparative table, showing the observation epochs and the mean azimuth and circular standard deviation for the selected stations.</p>
+            <p>The mean azimuth provides a measure of central tendency, while the circular standard deviation describes the dispersion of displacement directions.</p>
+
+            <div class="screenshot">
+                <img src="img/figure_n.png" alt="Batch analysis">
+                <small>Figure 22. Batch analysis results for multiple GNSS stations.</small>
+            </div> 
+            <p>By clicking <b>View</b>, the locations of the analysed GNSS stations are displayed on the QGIS map canvas. The corresponding analysis results are available in the layer's attribute table</p>
+            <div class="screenshot">
+                <img src="img/figura_27.png" width="30%"/>
+                <img src="img/figura_28.png" >
+                <small>Figure 23. Spatial representation of the analysed GNSS stations in QGIS. Analysis of 110 GNSS stations in South and Central America. Stations were randomly selected from different regions within each country of interest. Arrow directions represent the mean azimuth, and the arcs represent the circular standard deviation. Basemap: OpenStreetMap; tectonic plate boundaries: USGS.</small>
+            </div> 
+            <div class="screenshot">
+                <img src="img/figura_29.png" alt="Batch analysis">
+                <small>Figure 24. Results available in the layer's attribute table.</small>
+            </div> 
+
+        </div>
+    </section>
+
+    <!-- 5. Data -->
+    <section id="data">
+        <h2>5. Data</h2>
+        <p>The Data tab displays all the processed records, including:</p>
+        <ul>
+            <li>Time (epoch).</li>
+            <li>North component difference.</li>
+            <li>East component difference.</li>
+            <li>Distance.</li>
+            <li>Azimuth.</li>
+        </ul>
+        <p>In the Absolute mode, Distance and Azimuth are calculated for each epoch relative to the initial epoch or a selected reference epoch.</p>
+        <p>In the Relative mode, Distance and Azimuth are calculated for each epoch relative to the preceding epoch.</p>
+        <p>The processed data can be exported in CSV format by clicking the “<b>…</b>” button.</p>
+        <div class="screenshot">
+            <img src="img/figure_j.png" alt="Data menu">
+            <small>Figure 25. Data menu interface.</small>
+        </div>        
+    </section>
+
+    <!-- 6. Settings -->
+    <section id="settings">
+        <h2>6. Settings</h2>
+        <h4>Graphic Settings</h4>
+        <p>The following graphical parameters can be configured:</p>
+        <ul>
+            <li><b>Number of rings and sectors</b>: Configure the radial and angular divisions of circular plots.</li>
+            <li><b>Kappa and time bands</b>: Configure the smoothing parameter and temporal grouping used in the circular KDE plot by epoch.</li>
+            <li><b>Opacity</b>: Adjust the transparency of graphical elements.</li>
+            <li><b>Colours</b>: Customise the colours of rings, sectors, points, lines, mean direction, deviation and density map.</li>
+        </ul>
+        <br>
+        <h4>Report Settings</h4>
+        <p>The report options include:</p>
+        <ul>
+            <li>The report date.</li>
+            <li>Project description.</li>
+            <li>Graphics copied from the clipboard .</li>
+            <li>Data tables.</li>
+            <li>The report can be generated in HTML format</li>
+        </ul>
+        <br>
+        <div class="screenshot">
+            <img src="img/figure_k.png" alt="Data menu">
+            <small>Figure 26. Graphic and report settings in GVDA..</small>
+        </div>        
+    </section>
+
+    <!-- 7. performance -->
+    <section id="performance">
+        <h2>7. Computational performance</h2>
+        <p>The batch-processing performance of the GNSS Vector Direction Analysis (GVDA) QGIS plugin was evaluated on a desktop computer equipped with an Intel Core i5-2400 CPU operating at 3.10 GHz and 16 GB of RAM. The evaluation used GNSS station time series from three data sources (EPOS, NGL, and JPL) and eight batch sizes ranging from 2 to 100 stations. Processing time is reported in decimal minutes.</p>
+        <p>Processing time increased with batch size for all three data sources. For batches of 20 stations, elapsed times ranged from 0.29 to 0.45 min; at 60 stations, they ranged from 1.17 to 2.44 min. At the largest tested batch size of 100 stations, the elapsed times were 4.82 min for EPOS, 4.76 min for NGL, and 4.94 min for JPL, yielding an arithmetic mean of 4.84 min across the three sources. Thus, under the tested conditions, GVDA processed 100 stations in less than 5 min for each data source.</p>
+
+        <div class="screenshot">
+            <small>Table 1. Elapsed batch-processing time (min) by data source and number of GNSS stations.</small>
+            <center><table border=1 ><tr>
+                <th> Stations </th><th> EPOS </th><th> NGL </th><th> JPL </th><th> Mean </th></tr>
+                <tr>
+                <td> 2 </td><td> 0.03 </td><td> 0.03 </td><td> 0.04 </td><td> 0.03 </td></tr>
+                <tr>
+                <td> 5 </td><td> 0.07 </td><td> 0.08 </td><td> 0.11 </td><td> 0.09 </td></tr>
+                <tr>
+                <td> 10 </td><td> 0.14 </td><td> 0.16 </td><td> 0.20 </td><td> 0.17 </td></tr>
+                <tr>
+                <td> 20 </td><td> 0.45 </td><td> 0.29 </td><td> 0.44 </td><td> 0.39 </td></tr>
+                <tr>
+                <td> 40 </td><td> 0.71 </td><td> 0.53 </td><td> 1.12 </td><td> 0.79 </td></tr>
+                <tr>
+                <td> 60 </td><td> 2.29 </td><td> 1.17 </td><td> 2.44 </td><td> 1.97 </td></tr>
+                <tr>
+                <td> 80 </td><td> 3.30 </td><td> 3.06 </td><td> 3.27 </td><td> 3.21 </td></tr>
+                <tr>
+                <td> 100 </td><td> 4.82 </td><td> 4.76 </td><td> 4.94 </td><td> 4.84 </td></tr>
+            </table></center>
+        </div> 
+        <p>The relative ordering of the data sources varied with batch size. For example, NGL had the shortest recorded time at 60 stations, whereas the three measurements differed by only 0.18 min (approximately 11 s) at 100 stations. These differences should be interpreted as descriptive results for the tested batches rather than as intrinsic performance differences between providers. Station count alone does not characterise the computational workload: batches with the same number of stations may contain different numbers of GNSS observations</p>
+
+        <div class="screenshot">
+            <img src="img/figura_32.png" alt="Data menu">
+            <small>Figure 27. Elapsed processing time for GVDA batch analysis of GNSS station time series from EPOS. NGL. and JPL. Tests were conducted on a desktop computer with an Intel Core i5-2400 CPU at 3.10 GHz and 16 GB of RAM. Batch sizes ranged from 2 to 100 stations.</small>
+        </div>        
+    </section>
+
+    <section id="requirements">
+        <h2>Software requirements and dependencies:</h2>
+        <p>The GNSS Vector Direction Analysis (GVDA) plugin declares compatibility with QGIS Desktop versions 3.30–3.44. It uses PyQGIS for spatial operations and background tasks and the Qt bindings provided by QGIS (PyQt) for its graphical interface. Performance tests were conducted on Windows 10 (build 19045) using QGIS 3.44.4 (Solothurn). installed through OSGeo4W. with Python 3.12.12.</p>
+        <p>The two principal numerical dependencies are NumPy 1.26.4 and SciPy 1.13.0. NumPy is used in the optimised calculation of circular-median scores. while SciPy provides statistical and interpolation routines. GVDA also uses pandas 2.3.1 to handle GNSS station time series. Matplotlib 3.10.0 to display plots within the QGIS interface. and Pillow 11.1.0 for image handling.</p>
+        <p>All required Python libraries were available in the OSGeo4W environment used for testing; no additional Python packages had to be installed separately. The versions reported here describe the tested configuration. not minimum dependency requirements or verification of every QGIS release in the declared compatibility range.</p>
+    </section>
+
+
+    <section id="regerences">
+        <h2>References:</h2>
+        <p>Fisher, N. I. (1993). Statistical Analysis of Circular Data. Cambridge University Press. https://doi.org/10.1017/CBO9780511564345</p>
+        <p>Mardia, K., & Jupp, P. (2000). In Directional Statistics. https://doi.org/10.1002/9780470316979<p>
+    </section>
+
+</main>
+
+<footer>
+    <p>GVDA Plugin User Guide</p>
+</footer>
+
+</body>
+</html>
